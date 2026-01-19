@@ -87,14 +87,6 @@ backup_filename="${db_name}_${timestamp}.sql.bz2"
 backup_filepath="$backup_dir/$backup_filename"
 
 log_message "Iniciando backup da base de dados: $db_name"
-log_message "Host: $host"
-log_message "Usuário: $username"
-
-if [ -z "$password" ]; then
-    log_message "Autenticação: sem senha"
-else
-    log_message "Autenticação: com senha"
-fi
 log_message "Arquivo de backup: $backup_filename"
 
 # Realizar o dump da base de dados diretamente compactado
