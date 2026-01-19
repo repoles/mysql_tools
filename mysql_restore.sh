@@ -91,11 +91,9 @@ if [ -n "$ssh_user" ]; then
     ssh_target="$ssh_user@$ssh_host"
 fi
 
-remote_pattern="*.sql.bz2"
-
 log_message "Buscando último backup remoto em: $ssh_target:$remote_backup_dir"
 remote_latest_filepath=$(ssh "${SSH_OPTS[@]}" "$ssh_target" \
-    "ls -1t \"$remote_backup_dir\"/$remote_pattern 2>/dev/null | head -n 1")
+    "ls -1t \"$remote_backup_dir\"/*.sql.bz2 \"$remote_backup_dir\"/*.sql.gz 2>/dev/null | head -n 1")
 
 if [ -z "$remote_latest_filepath" ]; then
     log_message "ERRO: Nenhum backup encontrado em '$remote_backup_dir'."
@@ -127,16 +125,27 @@ log_message "Criando base local (se necessário): $target_db"
 "${mysql_cmd[@]}" -e "CREATE DATABASE IF NOT EXISTS \`$target_db\`;"
 
 log_message "Restaurando backup em: $target_db"
-bzip2 -dc "$local_backup_filepath" | "${mysql_cmd[@]}" "$target_db"
+case "$local_backup_filepath" in
+    *.sql.bz2)
+        bzip2 -dc "$local_backup_filepath" | "${mysql_cmd[@]}" "$target_db"
+        ;;
+    *.sql.gz)
+        gzip -dc "$local_backup_filepath" | "${mysql_cmd[@]}" "$target_db"
+        ;;
+    *)
+        log_message "ERRO: Extensao de backup nao suportada: $(basename "$local_backup_filepath")"
+        exit 1
+        ;;
+esac
 
 log_message "Limpando dumps antigos (mais de 7 dias)..."
-find "$local_tmp_dir" -maxdepth 1 -type f -name "*.sql.bz2" -mtime +7 -print0 | \
+find "$local_tmp_dir" -maxdepth 1 -type f \( -name "*.sql.bz2" -o -name "*.sql.gz" \) -mtime +7 -print0 | \
 while IFS= read -r -d '' old_dump; do
     log_message "Removendo dump antigo: $(basename "$old_dump")"
     rm -f "$old_dump"
 done
 
-final_dump_count=$(find "$local_tmp_dir" -maxdepth 1 -type f -name "*.sql.bz2" | wc -l | tr -d ' ')
+final_dump_count=$(find "$local_tmp_dir" -maxdepth 1 -type f \( -name "*.sql.bz2" -o -name "*.sql.gz" \) | wc -l | tr -d ' ')
 total_size=$(du -sh "$local_tmp_dir" | cut -f1)
 
 log_message "Restore concluído com sucesso!"
