@@ -6,9 +6,16 @@
 set -e  # Sair em caso de erro
 set -o pipefail  # Falhar se qualquer comando no pipe falhar
 
+# Por padrao, log com timestamp.
+log_timestamp=false
+
 # Função para exibir mensagens de log com timestamp
 log_message() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    if [ "$log_timestamp" = "true" ]; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    else
+        echo "$1"
+    fi
 }
 
 # Função para exibir uso do script
