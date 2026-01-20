@@ -122,6 +122,14 @@ if [ ! -s "$backup_filepath" ]; then
     exit 1
 fi
 
+# Verificar integridade do arquivo compactado
+log_message "Verificando integridade do arquivo..."
+if ! bzip2 -t "$backup_filepath" 2>/dev/null; then
+    log_message "ERRO: Arquivo de backup corrompido."
+    rm -f "$backup_filepath"
+    exit 1
+fi
+
 # Manter apenas os 7 backups mais recentes
 log_message "Limpando backups antigos (mantendo apenas os 7 mais recentes)..."
 
