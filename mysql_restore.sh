@@ -107,7 +107,7 @@ if [ -n "$ssh_user" ]; then
     ssh_target="$ssh_user@$ssh_host"
 fi
 
-log_message "Buscando último backup remoto em: $remote_backup_dir"
+log_message "Buscando último backup remoto em: $ssh_target:$remote_backup_dir"
 remote_latest_filepath=$(ssh "${SSH_OPTS[@]}" "$ssh_target" \
     "ls -1t \"$remote_backup_dir\"/*.sql.bz2 \"$remote_backup_dir\"/*.sql.gz 2>/dev/null | head -n 1")
 
