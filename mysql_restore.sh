@@ -20,7 +20,7 @@ log_message() {
 
 # Função para exibir uso do script
 show_usage() {
-    echo "Uso: $(basename $0) <caminho_arquivo_config>"
+    echo "Uso: $(basename "$0") <caminho_arquivo_config>"
     echo ""
     echo "O arquivo de configuração deve conter as seguintes variáveis:"
     echo "ssh_user=seu_usuario_ssh # (opcional)"
@@ -48,7 +48,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # Verificar se o arquivo de configuração foi fornecido
-if [ $# -ne 1 ]; then
+if [ "$#" -ne 1 ]; then
     log_message "ERRO: Número incorreto de parâmetros."
     show_usage
 fi
