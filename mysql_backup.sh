@@ -6,7 +6,7 @@
 set -e  # Sair em caso de erro
 set -o pipefail  # Falhar se qualquer comando no pipe falhar
 
-# Por padrao, log com timestamp.
+# Por padrao, log sem timestamp. Pode ser sobrescrito pelo arquivo de configuração.
 log_timestamp=false
 
 # Função para exibir mensagens de log com timestamp
@@ -28,6 +28,7 @@ show_usage() {
     echo "host=seu_host"
     echo "backup_dir=/caminho/para/backup"
     echo "db_name=nome_da_base"
+    echo "log_timestamp=true # (opcional; padrão: false)"
     exit 1
 }
 

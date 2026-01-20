@@ -6,7 +6,7 @@
 set -e  # Sair em caso de erro
 set -o pipefail  # Falhar se qualquer comando no pipe falhar
 
-# Por padrao, log com timestamp.
+# Por padrao, log sem timestamp. Pode ser sobrescrito pelo arquivo de configuração.
 log_timestamp=false
 
 # Função para exibir mensagens de log com timestamp
@@ -34,6 +34,7 @@ show_usage() {
     echo "target_db=nome_da_base_local"
     echo "post_restore_inline_script='SQL; SQL;' # (opcional)"
     echo "post_restore_file_script=/caminho/arquivo.sql # (opcional)"
+    echo "log_timestamp=true # (opcional; padrão: false)"
     exit 1
 }
 
@@ -106,7 +107,7 @@ if [ -n "$ssh_user" ]; then
     ssh_target="$ssh_user@$ssh_host"
 fi
 
-log_message "Buscando último backup remoto em: $ssh_target:$remote_backup_dir"
+log_message "Buscando último backup remoto em: $remote_backup_dir"
 remote_latest_filepath=$(ssh "${SSH_OPTS[@]}" "$ssh_target" \
     "ls -1t \"$remote_backup_dir\"/*.sql.bz2 \"$remote_backup_dir\"/*.sql.gz 2>/dev/null | head -n 1")
 
