@@ -32,6 +32,8 @@ show_usage() {
     echo "mysql_password=sua_senha_mysql # (opcional; pode ser vazio)"
     echo "mysql_host=seu_host_mysql # (opcional; padrao: localhost)"
     echo "target_db=nome_da_base_local"
+    echo "post_restore_inline_script='SQL; SQL;' # (opcional)"
+    echo "post_restore_file_script=/caminho/arquivo.sql # (opcional)"
     exit 1
 }
 
@@ -51,6 +53,7 @@ if [ $# -ne 1 ]; then
 fi
 
 CONFIG_FILE="$1"
+CONFIG_DIR=$(dirname "$CONFIG_FILE")
 
 # Verificar se o arquivo de configuração existe
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -144,6 +147,24 @@ case "$local_backup_filepath" in
         exit 1
         ;;
 esac
+
+if [ -n "$post_restore_inline_script" ]; then
+    log_message "Executando script SQL inline..."
+    "${mysql_cmd[@]}" "$target_db" -e "$post_restore_inline_script"
+fi
+
+if [ -n "$post_restore_file_script" ]; then
+    script_path="$post_restore_file_script"
+    if [[ "$script_path" != /* ]]; then
+        script_path="$CONFIG_DIR/$script_path"
+    fi
+    if [ ! -f "$script_path" ]; then
+        log_message "ERRO: Arquivo SQL nao encontrado: $script_path"
+        exit 1
+    fi
+    log_message "Executando script SQL de arquivo: $(basename "$script_path")"
+    "${mysql_cmd[@]}" "$target_db" < "$script_path"
+fi
 
 log_message "Limpando dumps antigos (mais de 7 dias)..."
 find "$local_tmp_dir" -maxdepth 1 -type f \( -name "*.sql.bz2" -o -name "*.sql.gz" \) -mtime +7 -print0 | \
