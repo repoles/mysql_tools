@@ -47,6 +47,11 @@ if [ $# -ne 1 ]; then
 fi
 
 CONFIG_FILE="$1"
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+
+if [[ "$CONFIG_FILE" != /* ]]; then
+    CONFIG_FILE="$SCRIPT_DIR/$CONFIG_FILE"
+fi
 
 # Verificar se o arquivo de configuração existe
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -55,8 +60,7 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 
 # Carregar configurações
-log_message "Carregando configurações de: $CONFIG_FILE"
-# shellcheck source=mysql_backup/billing_development.conf
+log_message "Carregando configurações de: $1"
 source "$CONFIG_FILE"
 
 # Verificar se todas as variáveis necessárias estão definidas
@@ -140,7 +144,6 @@ if [ "$backup_count" -gt 7 ]; then
     excess_count=$((backup_count - 7))
 
     # Listar arquivos ordenados por data de modificação (mais antigos primeiro)
-    # shellcheck disable=SC2012
     ls -1t "$backup_dir"/${db_name}_*.sql.bz2 | tail -n "$excess_count" | \
     while read -r old_backup; do
         log_message "Removendo backup antigo: $(basename "$old_backup")"
