@@ -133,7 +133,7 @@ if [ "$backup_count" -gt 7 ]; then
     excess_count=$((backup_count - 7))
 
     # Listar arquivos ordenados por data de modificação (mais antigos primeiro)
-    ls -1t "$backup_dir"/${db_name}_*.sql.bz2 | tail -n "$excess_count" | \
+    ls -1t -- "$backup_dir/${db_name}"_*.sql.bz2 | tail -n "$excess_count" | \
     while read -r old_backup; do
         log_message "Removendo backup antigo: $(basename "$old_backup")"
         rm -f "$old_backup"
