@@ -132,10 +132,9 @@ if [ ! -s "$local_backup_filepath" ]; then
 fi
 keep_backup=true
 
+# Usar MYSQL_PWD para evitar exposição da senha no ps aux
 mysql_cmd=(mysql -h "$mysql_host" -u "$mysql_user")
-if [ -n "$mysql_password" ]; then
-    mysql_cmd+=(-p"$mysql_password")
-fi
+export MYSQL_PWD="$mysql_password"
 
 log_message "Criando base local (se necessário): $target_db"
 "${mysql_cmd[@]}" -e "CREATE DATABASE IF NOT EXISTS \`$target_db\`;"

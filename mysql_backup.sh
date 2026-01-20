@@ -107,25 +107,13 @@ log_message "Realizando dump compactado diretamente..."
 # Opções do mysqldump para backup completo
 MYSQLDUMP_OPTIONS="--single-transaction"
 
-# Usar diferentes comandos dependendo se há senha ou não
-if [ -z "$password" ]; then
-    # Usuário sem senha
-    if mysqldump -h "$host" -u "$username" $MYSQLDUMP_OPTIONS "$db_name" | bzip2 > "$backup_filepath"; then
-        log_message "Dump compactado realizado com sucesso."
-    else
-        log_message "ERRO: Falha ao realizar o dump compactado."
-        [ -f "$backup_filepath" ] && rm -f "$backup_filepath"  # Limpar arquivo parcial
-        exit 1
-    fi
+# Executar mysqldump com MYSQL_PWD para evitar exposição da senha no ps aux
+if MYSQL_PWD="$password" mysqldump -h "$host" -u "$username" $MYSQLDUMP_OPTIONS "$db_name" | bzip2 > "$backup_filepath"; then
+    log_message "Dump compactado realizado com sucesso."
 else
-    # Usuário com senha
-    if mysqldump -h "$host" -u "$username" -p"$password" $MYSQLDUMP_OPTIONS "$db_name" | bzip2 > "$backup_filepath"; then
-        log_message "Dump compactado realizado com sucesso."
-    else
-        log_message "ERRO: Falha ao realizar o dump compactado."
-        [ -f "$backup_filepath" ] && rm -f "$backup_filepath"  # Limpar arquivo parcial
-        exit 1
-    fi
+    log_message "ERRO: Falha ao realizar o dump compactado."
+    [ -f "$backup_filepath" ] && rm -f "$backup_filepath"  # Limpar arquivo parcial
+    exit 1
 fi
 
 # Verificar se o arquivo compactado foi criado e não está vazio
