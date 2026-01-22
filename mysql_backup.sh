@@ -48,11 +48,6 @@ if [ "$#" -ne 1 ]; then
 fi
 
 CONFIG_FILE="$1"
-SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-
-if [[ "$CONFIG_FILE" != /* ]]; then
-    CONFIG_FILE="$SCRIPT_DIR/$CONFIG_FILE"
-fi
 
 # Verificar se o arquivo de configuração existe
 if [ ! -f "$CONFIG_FILE" ]; then
