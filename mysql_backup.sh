@@ -26,6 +26,7 @@ show_usage() {
     echo "username=seu_usuario"
     echo "password=sua_senha # (pode ser vazio para usuários sem senha)"
     echo "host=seu_host"
+    echo "port=3306 # (opcional; padrão: 3306)"
     echo "backup_dir=/caminho/para/backup"
     echo "db_name=nome_da_base"
     echo "log_timestamp=true # (opcional; padrão: false)"
@@ -58,6 +59,9 @@ fi
 # Carregar configurações
 log_message "Carregando configurações de: $1"
 source "$CONFIG_FILE"
+
+# Definir valores padrão para variáveis opcionais
+port="${port:-3306}"
 
 # Verificar se todas as variáveis necessárias estão definidas
 # Nota: password pode ser vazia, então verificamos se ela está definida (não necessariamente com valor)
@@ -103,7 +107,7 @@ log_message "Realizando dump compactado diretamente..."
 MYSQLDUMP_OPTIONS="--single-transaction"
 
 # Executar mysqldump com MYSQL_PWD para evitar exposição da senha no ps aux
-if MYSQL_PWD="$password" mysqldump -h "$host" -u "$username" $MYSQLDUMP_OPTIONS "$db_name" | bzip2 > "$backup_filepath"; then
+if MYSQL_PWD="$password" mysqldump -h "$host" -P "$port" -u "$username" $MYSQLDUMP_OPTIONS "$db_name" | bzip2 > "$backup_filepath"; then
     log_message "Dump compactado realizado com sucesso."
 else
     log_message "ERRO: Falha ao realizar o dump compactado."

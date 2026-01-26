@@ -33,6 +33,7 @@ backup_dir=/caminho/para/backups
 db_name=nome_da_base
 
 # Opcionais
+port=3306                # padrão: 3306
 log_timestamp=true        # padrão: false
 ```
 
@@ -43,6 +44,7 @@ log_timestamp=true        # padrão: false
 username=backup_user
 password=senha_segura
 host=localhost
+port=3306
 backup_dir=/var/backups/mysql
 db_name=minha_aplicacao
 log_timestamp=true
