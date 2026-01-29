@@ -26,14 +26,14 @@ Crie um arquivo `.conf` com as seguintes variáveis:
 
 ```bash
 # Obrigatórias
+host=localhost
 username=seu_usuario
 password=sua_senha        # pode ser vazio para usuários sem senha
-host=localhost
-backup_dir=/caminho/para/backups
 db_name=nome_da_base
+backup_dir=/caminho/para/backups
 
 # Opcionais
-port=3306                # padrão: 3306
+port=3306                 # padrão: 3306
 log_timestamp=true        # padrão: false
 ```
 
@@ -41,12 +41,12 @@ log_timestamp=true        # padrão: false
 
 ```bash
 # backup_config/producao.conf
-username=backup_user
-password=senha_segura
 host=localhost
 port=3306
-backup_dir=/var/backups/mysql
+username=backup_user
+password=senha_segura
 db_name=minha_aplicacao
+backup_dir=/var/backups/mysql
 log_timestamp=true
 ```
 
@@ -86,9 +86,10 @@ target_db=nome_da_base_local
 ssh_user=usuario_ssh              # padrão: usuário atual
 ssh_port=22                       # padrão: 22
 local_tmp_dir=/tmp/mysql_dumps    # padrão: $TMPDIR/mysql_dumps
+mysql_host=localhost              # padrão: localhost
+mysql_port=3306                   # padrão: 3306
 mysql_user=root                   # padrão: root
 mysql_password=                   # padrão: vazio
-mysql_host=localhost              # padrão: localhost
 log_timestamp=true                # padrão: false
 
 # Scripts pós-restore (opcionais)

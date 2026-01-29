@@ -28,9 +28,10 @@ show_usage() {
     echo "ssh_port=22 # (opcional)"
     echo "remote_backup_dir=/caminho/para/backups"
     echo "local_tmp_dir=/caminho/tmp # (opcional; padrao: \$TMPDIR/mysql_dumps)"
+    echo "mysql_host=seu_host_mysql # (opcional; padrao: localhost)"
+    echo "mysql_port=3306 # (opcional; padrao: 3306)"
     echo "mysql_user=seu_usuario_mysql # (opcional; padrao: root)"
     echo "mysql_password=sua_senha_mysql # (opcional; pode ser vazio)"
-    echo "mysql_host=seu_host_mysql # (opcional; padrao: localhost)"
     echo "target_db=nome_da_base_local"
     echo "post_restore_inline_script='SQL; SQL;' # (opcional)"
     echo "post_restore_file_script=/caminho/arquivo.sql # (opcional)"
@@ -82,9 +83,10 @@ done
 # Defaults opcionais
 tmp_base="${TMPDIR:-/tmp}"
 local_tmp_dir="${local_tmp_dir:-$tmp_base/mysql_dumps}"
+mysql_host="${mysql_host:-localhost}"
+mysql_port="${mysql_port:-3306}"
 mysql_user="${mysql_user:-root}"
 mysql_password="${mysql_password:-}"
-mysql_host="${mysql_host:-localhost}"
 
 # Criar diretório temporário local se não existir
 if [ ! -d "$local_tmp_dir" ]; then
@@ -128,13 +130,15 @@ fi
 keep_backup=true
 
 # Usar MYSQL_PWD para evitar exposição da senha no ps aux
-mysql_cmd=(mysql -h "$mysql_host" -u "$mysql_user")
+mysql_cmd=(mysql -h "$mysql_host" -P "$mysql_port" -u "$mysql_user")
 export MYSQL_PWD="$mysql_password"
 
-log_message "Criando base local (se necessário): $target_db"
+mysql_dest="$mysql_host:$mysql_port/$target_db"
+
+log_message "Criando base local (se necessário): $mysql_dest"
 "${mysql_cmd[@]}" -e "CREATE DATABASE IF NOT EXISTS \`$target_db\`;"
 
-log_message "Restaurando backup em: $target_db"
+log_message "Restaurando backup em: $mysql_dest"
 case "$local_backup_filepath" in
     *.sql.bz2)
         bzip2 -dc "$local_backup_filepath" | "${mysql_cmd[@]}" "$target_db"
