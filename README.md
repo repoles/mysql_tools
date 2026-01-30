@@ -125,11 +125,59 @@ post_restore_file_script=sanitize.sql
 - As senhas são passadas via variável de ambiente `MYSQL_PWD`, evitando exposição no `ps aux`
 - Arquivos `.conf` devem ter permissões restritas: `chmod 600 *.conf`
 
+## mysql_s3_backup.sh
+
+Envia para o S3 o primeiro backup do mês encontrado no diretório de backups.
+
+### Uso
+
+```bash
+./mysql_s3_backup.sh <arquivo_config>
+```
+
+### Configuração
+
+Crie um arquivo `.conf` com as seguintes variáveis:
+
+```bash
+# Obrigatórias
+db_name=nome_da_base
+backup_dir=/caminho/para/backups
+s3_dest=s3://bucket/pasta
+aws_cli_path=/caminho/para/aws
+
+# Opcionais
+aws_cli_path=/caminho/para/aws  # padrão: /usr/local/bin
+log_timestamp=true              # padrão: false
+```
+
+### Exemplo
+
+```bash
+# s3_backup.conf
+db_name=producao
+backup_dir=/data/backup/db/producao
+s3_dest=s3://my-backup-bucket/database
+log_timestamp=true
+```
+
+```bash
+./mysql_s3_backup.sh s3_backup.conf
+```
+
+### Funcionalidades
+
+- Seleciona o primeiro backup do mês atual baseado no nome do arquivo
+- Garante apenas 1 backup por mês no S3 (se já existir qualquer backup do mês, não envia outro)
+
 ## Uso com cron
 
 ```bash
 # Backup diário às 3h
 0 3 * * * /caminho/mysql_tools/mysql_backup.sh /caminho/config/producao.conf >> /var/log/mysql_backup.log 2>&1
+
+# Upload mensal diário (seleciona o primeiro backup do mês)
+10 3 * * * /caminho/mysql_tools/mysql_s3_backup.sh /caminho/config/s3_backup.conf >> /var/log/mysql_s3_backup.log 2>&1
 ```
 
 ## Licença
