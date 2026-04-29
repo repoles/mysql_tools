@@ -104,7 +104,8 @@ log_message "Arquivo de backup: $backup_filename"
 log_message "Realizando dump compactado diretamente..."
 
 # Opções do mysqldump para backup completo
-MYSQLDUMP_OPTIONS="--single-transaction"
+# --no-tablespaces evita exigir o privilégio PROCESS ao exportar metadados
+MYSQLDUMP_OPTIONS="--single-transaction --no-tablespaces"
 
 # Executar mysqldump com MYSQL_PWD para evitar exposição da senha no ps aux
 if MYSQL_PWD="$password" mysqldump -h "$host" -P "$port" -u "$username" $MYSQLDUMP_OPTIONS "$db_name" | bzip2 > "$backup_filepath"; then
